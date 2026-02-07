@@ -10,6 +10,8 @@ export default function Home() {
         answer: "?",
 
     })
+    const [questions, setQuestions] = useState([])
+
 
     return (
         <div className="min-h-screen bg-slate-900 text-white">
@@ -31,9 +33,28 @@ export default function Home() {
 
                 </div>
 
-                <div className="bg-slate-800 rounded-xl p-6 text-slate-400">
-                    No questions yet.
-                </div>
+                {questions.length === 0 ? (
+                    <div className="bg-slate-800 rounded-xl p-6 text-slate-400">
+                        No questions yet.
+                    </div>
+                ) : (
+                    <div className="space-y-4">
+                        {questions.map((q) => (
+                            <div
+                                key={q.id}
+                                className="bg-slate-800 p-4 rounded-xl flex justify-between items-center"
+                            >
+                                <div>
+                                    <h3 className="font-semibold">{q.title}</h3>
+                                    <p className="text-sm text-slate-400">
+                                        {q.category} • {q.difficulty}
+                                    </p>
+                                    <p>{q.answer}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
 
             </div>
 
@@ -85,7 +106,7 @@ export default function Home() {
                         </select>
 
 
-                         {/* ANSWER */}
+                        {/* ANSWER */}
                         <input
                             type="text"
                             placeholder="Enter the answer of the question"
@@ -106,7 +127,22 @@ export default function Home() {
 
                             <button
                                 onClick={() => {
-                                    console.log(formData)
+                                    if (!formData.title.trim()) return
+
+                                    const newQuestion = {
+                                        id: Date.now(),
+                                        ...formData
+                                    }
+
+                                    setQuestions([newQuestion, ...questions])
+
+                                    setFormData({
+                                        title: "",
+                                        category: "JS",
+                                        difficulty: "Easy",
+                                        answer: "?"
+                                    })
+
                                     setIsOpen(false)
                                 }}
                                 className="px-4 py-2 bg-blue-600 text-white rounded-lg"

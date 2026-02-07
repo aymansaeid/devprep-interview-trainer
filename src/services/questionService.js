@@ -13,3 +13,7 @@ export const createQuestion = (data) => {
 export const removeQuestion = (id) => {
   return api.delete(`/questions/${id}`);
 };
+
+export const updateQuestion = (id, data) => {
+  return api.put(`/questions/${id}`, data);
+};

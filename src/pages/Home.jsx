@@ -1,6 +1,6 @@
 import Header from "../components/Header"
 import { useState, useEffect } from "react"
-import { fetchQuestions, createQuestion, removeQuestion } from "../services/questionService"
+import { fetchQuestions, createQuestion, removeQuestion, updateQuestion } from "../services/questionService"
 
 export default function Home() {
     const [isOpen, setIsOpen] = useState(false)
@@ -12,6 +12,8 @@ export default function Home() {
 
     })
     const [questions, setQuestions] = useState([])
+
+    const [editingId, setEditingId] = useState(null)
 
     useEffect(() => {
         loadData();
@@ -26,39 +28,57 @@ export default function Home() {
         }
     }
 
+    const handleOpenModal = () => {
+        setEditingId(null);
+        setFormData({
+            title: "",
+            category: "JS",
+            difficulty: "Easy",
+            answer: "?"
+        });
+        setIsOpen(true);
+    }
+
+    const handleEditClick = (question) => {
+        setEditingId(question.id); // Düzenleme modu aktif
+        setFormData({
+            title: question.title,
+            category: question.category,
+            difficulty: question.difficulty,
+            answer: question.answer
+        });
+        setIsOpen(true); // Modalı aç
+    }
+
     const handleSave = async () => {
         if (!formData.title.trim()) return;
-
-        const newQuestion = {
-            ...formData,
-        };
-
         try {
-            await createQuestion(newQuestion);
-            await loadData();
+            if (editingId) {
+                // EĞER DÜZENLEME MODUNDAYSAK GÜNCELLE
+                await updateQuestion(editingId, formData);
+            } else {
+                // DEĞİLSE YENİ EKLE
+                await createQuestion(formData);
+            }
 
-            setFormData({
-                title: "",
-                category: "JS",
-                difficulty: "Easy",
-                answer: "?"
-            });
-            setIsOpen(false);
+            await loadData(); // Listeyi yenile
+            setIsOpen(false); // Modalı kapat
+
         } catch (error) {
-            console.error("Kaydedilemedi:", error);
+            console.error("İşlem hatası:", error);
         }
-    };
+    }
 
     const handleDelete = async (id) => {
         if (window.confirm("Silmek istediğinden emin misin?")) {
-            await removeQuestion(id); 
-            loadData();               
+            await removeQuestion(id);
+            loadData();
         }
     }
 
 
     return (
-       <div className="min-h-screen bg-slate-900 text-white">
+        <div className="min-h-screen bg-slate-900 text-white">
             <Header />
 
             <div className="max-w-5xl mx-auto p-6">
@@ -67,7 +87,7 @@ export default function Home() {
                         Questions ({questions.length})
                     </h2>
 
-                    <button onClick={() => setIsOpen(true)}
+                    <button onClick={handleOpenModal}
                         className="bg-blue-600 hover:bg-blue-700 transition px-4 py-2 rounded-lg">
                         + Add Question
                     </button>
@@ -80,7 +100,7 @@ export default function Home() {
                 ) : (
                     <div className="space-y-4">
                         {questions.map((q) => (
-                            <div key={q.id} className="bg-slate-800 p-4 rounded-xl flex justify-between items-center border border-slate-700 hover:border-blue-500 transition">
+                            <div key={q.id} className="bg-slate-800 p-4 rounded-xl flex justify-between items-center border border-slate-700 hover:border-blue-500 transition group">
                                 <div>
                                     <h3 className="font-semibold text-lg">{q.title}</h3>
                                     <div className="flex gap-2 mt-1">
@@ -88,22 +108,32 @@ export default function Home() {
                                             {q.category}
                                         </span>
                                         <span className={`text-xs px-2 py-1 rounded 
-                                            ${q.difficulty === 'Easy' ? 'bg-green-900 text-green-300' : 
-                                              q.difficulty === 'Medium' ? 'bg-yellow-900 text-yellow-300' : 
-                                              'bg-red-900 text-red-300'}`}>
+                                            ${q.difficulty === 'Easy' ? 'bg-green-900 text-green-300' :
+                                                q.difficulty === 'Medium' ? 'bg-yellow-900 text-yellow-300' :
+                                                    'bg-red-900 text-red-300'}`}>
                                             {q.difficulty}
                                         </span>
                                     </div>
                                     <p className="mt-2 text-slate-400 text-sm italic">{q.answer}</p>
                                 </div>
-                                
-                                {/* Silme Butonu */}
-                                <button 
-                                    onClick={() => handleDelete(q.id)}
-                                    className="text-red-400 hover:bg-red-900/30 p-2 rounded-lg transition"
-                                >
-                                    🗑️
-                                </button>
+
+                                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    {/* DÜZENLEME BUTONU */}
+                                    <button
+                                        onClick={() => handleEditClick(q)}
+                                        className="text-blue-400 hover:bg-blue-900/30 p-2 rounded-lg transition"
+                                    >
+                                        ✏️
+                                    </button>
+
+                                    {/* SİLME BUTONU */}
+                                    <button
+                                        onClick={() => handleDelete(q.id)}
+                                        className="text-red-400 hover:bg-red-900/30 p-2 rounded-lg transition"
+                                    >
+                                        🗑️
+                                    </button>
+                                </div>
                             </div>
                         ))}
                     </div>
@@ -114,7 +144,9 @@ export default function Home() {
             {isOpen && (
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
                     <div className="bg-slate-800 text-white w-full max-w-md p-6 rounded-xl shadow-2xl border border-slate-700">
-                        <h3 className="text-xl font-semibold mb-4 text-blue-400">Add New Question</h3>
+                        <h3 className="text-xl font-semibold mb-4 text-blue-400">
+                            {editingId ? "Edit Question" : "Add New Question"}
+                        </h3>
 
                         <input type="text" placeholder="Question Title" className="w-full bg-slate-900 border border-slate-600 p-3 rounded-lg mb-3 focus:outline-none focus:border-blue-500"
                             value={formData.title}
@@ -150,7 +182,7 @@ export default function Home() {
                                 Cancel
                             </button>
                             <button onClick={handleSave} className="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition shadow-lg shadow-blue-900/20">
-                                Save Question
+                                {editingId ? "Update" : "Save"}
                             </button>
                         </div>
                     </div>

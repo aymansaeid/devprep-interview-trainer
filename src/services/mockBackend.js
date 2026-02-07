@@ -16,7 +16,7 @@ const setData = (data) => {
 // İSTEKLERİ YAKALAYAN KISIM (INTERCEPTOR)
 api.interceptors.request.use((config) => {
   const { method, url, data } = config;
-  
+
   // Her istekte güncel veriyi çekelim
   let questions = getData();
 
@@ -35,11 +35,11 @@ api.interceptors.request.use((config) => {
   // --- POST (Ekleme) ---
   if (method === "post" && url === "/questions") {
     const body = typeof data === 'string' ? JSON.parse(data) : data;
-    const newItem = { 
-        ...body,             // Gelen veriyi al
-        id: Date.now()       // Benzersiz ID ekle
+    const newItem = {
+      ...body,             // Gelen veriyi al
+      id: Date.now()       // Benzersiz ID ekle
     };
-    
+
     questions.unshift(newItem); // En başa ekle
     setData(questions);         // Kaydet
     console.log("Mock API: Yeni soru eklendi ->", newItem);
@@ -57,13 +57,13 @@ api.interceptors.request.use((config) => {
   // url şöyle gelir: "/questions/1738923423" -> ID'yi url'den ayıklamamız lazım
   if (method === "delete" && url.includes("/questions/")) {
     const id = Number(url.split("/").pop());
-    
+
     const initialLength = questions.length;
     questions = questions.filter(q => q.id !== id);
-    
+
     if (questions.length !== initialLength) {
-        setData(questions);
-        console.log("Mock API: Soru silindi ID ->", id);
+      setData(questions);
+      console.log("Mock API: Soru silindi ID ->", id);
     }
 
     config.adapter = async () => ({
@@ -75,5 +75,27 @@ api.interceptors.request.use((config) => {
     });
   }
 
+
+  // --- PUT (Güncelleme) ---
+  if (method === "put" && url.includes("/questions/")) {
+    const id = Number(url.split("/").pop());
+    const body = typeof data === 'string' ? JSON.parse(data) : data;
+
+    // İlgili soruyu bul ve güncelle
+    questions = questions.map(q => q.id === id ? { ...q, ...body } : q);
+
+    setData(questions);
+    console.log("Mock API: Soru güncellendi ID ->", id);
+
+    config.adapter = async () => ({
+      data: body,
+      status: 200,
+      statusText: "Updated",
+      headers: {},
+      config
+    });
+  }
+
   return config;
 });
+

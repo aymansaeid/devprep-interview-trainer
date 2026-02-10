@@ -65,7 +65,7 @@ export default function Footer() {
               
               {/* GitHub Link */}
               <a 
-                href="https://github.com/yourusername" 
+                href="https://github.com/aymansaeid" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="group inline-flex items-center gap-3 px-4 py-3 rounded-xl bg-slate-800/50 border border-slate-700/50 hover:border-slate-600 hover:bg-slate-800/80 transition-all w-fit"
@@ -99,7 +99,7 @@ export default function Footer() {
                 </a>
 
                 <a 
-                  href="https://linkedin.com/in/yourusername" 
+                  href="https://www.linkedin.com/in/ayman-saeid-/" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="p-3 rounded-xl bg-slate-800/50 border border-slate-700/50 hover:border-blue-400/50 hover:bg-blue-500/10 text-slate-400 hover:text-blue-400 transition-all group"
@@ -111,7 +111,7 @@ export default function Footer() {
                 </a>
 
                 <a 
-                  href="mailto:your.email@example.com" 
+                  href="mailto:aemon.saeid@gmail.com" 
                   className="p-3 rounded-xl bg-slate-800/50 border border-slate-700/50 hover:border-purple-400/50 hover:bg-purple-500/10 text-slate-400 hover:text-purple-400 transition-all group"
                   aria-label="Email"
                 >

@@ -2,10 +2,51 @@ import { api } from "./api";
 
 const STORAGE_KEY = "devprep_questions";
 
-// LocalStorage'dan veri okuyan yardımcı fonksiyon
+// Örnek Başlangıç Verileri (Seed Data)
+const INITIAL_DATA = [
+  {
+    id: 17092834,
+    title: "Explain the difference between var, let, and const",
+    category: "JS",
+    difficulty: "Easy",
+    answer: "var is function scoped and hoisted. let and const are block scoped. const cannot be reassigned while let can."
+  },
+  {
+    id: 17092835,
+    title: "What is the Virtual DOM in React?",
+    category: "React",
+    difficulty: "Medium",
+    answer: "The Virtual DOM is a lightweight copy of the real DOM. React updates this first, compares it with the previous version (diffing), and only updates the changed parts in the real DOM."
+  },
+  {
+    id: 17092836,
+    title: "How do you handle state management in complex apps?",
+    category: "System",
+    difficulty: "Hard",
+    answer: "For complex apps, we can use Redux, Zustand, or Context API depending on the scalability needs. State should be lifted up or managed globally to avoid prop drilling."
+  },
+  {
+    id: 17092837,
+    title: "Which algoriths uses LIFO?",
+    category: "ALGO",
+    difficulty: "Medium",
+    answer: "Certain data structures like Stacks and other variants of Stacks use LIFO approach for processing data."
+  }
+]
+
 const getData = () => {
   const data = localStorage.getItem(STORAGE_KEY);
-  return data ? JSON.parse(data) : [];
+
+  // Eğer localStorage'da veri varsa onu getir
+  if (data) {
+    return JSON.parse(data);
+  }
+
+  // Eğer veri YOKSA (ilk giriş), başlangıç verilerini kaydet ve getir
+  else {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_DATA));
+    return INITIAL_DATA;
+  }
 };
 
 // LocalStorage'a veri yazan yardımcı fonksiyon
